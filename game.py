@@ -68,21 +68,33 @@ def logicalGame(fenetre, board, event):
                                 directionTemp = math.abs(directionTemp)
                             board.rotatePiece(x, y, directionTemp)
                             board.nextPlayerTurn()                    
-                elif (0 <= xtemp <= 4) and (0 <= ytemp <= 4):
+                elif (-1 <= xtemp <= 5) and (-1 <= ytemp <= 5):
                         if (x == xtemp+1 and y == ytemp and board.getPieces(xtemp, ytemp) == board.getCurrentPlayerTurn()%2+1):
-                            board.movePieces(xtemp, ytemp, 1)
+                            if x == 5:
+                                board.remouvePiece(xtemp, ytemp)
+                            else:
+                                board.movePieces(xtemp, ytemp, 1)
                             if board.getPieces(xtemp, ytemp) == 0:
                                 board.nextPlayerTurn()
                         elif (x == xtemp-1 and y == ytemp and board.getPieces(xtemp, ytemp) == board.getCurrentPlayerTurn()%2+1):
-                            board.movePieces(xtemp, ytemp, 3)
+                            if x == -1:
+                                board.remouvePiece(xtemp, ytemp)
+                            else:
+                                board.movePieces(xtemp, ytemp, 3)
                             if board.getPieces(xtemp, ytemp) == 0:
                                 board.nextPlayerTurn()
                         elif (y == ytemp+1 and x == xtemp and board.getPieces(xtemp, ytemp) == board.getCurrentPlayerTurn()%2+1):
-                            board.movePieces(xtemp, ytemp, 2)
+                            if y == 5:
+                                board.remouvePiece(xtemp, ytemp)
+                            else:
+                                board.movePieces(xtemp, ytemp, 2)
                             if board.getPieces(xtemp, ytemp) == 0:
                                 board.nextPlayerTurn()
                         elif (y == ytemp-1 and x == xtemp and board.getPieces(xtemp, ytemp) == board.getCurrentPlayerTurn()%2+1):
-                            board.movePieces(xtemp, ytemp, 0)
+                            if y == -1:
+                                board.remouvePiece(xtemp, ytemp)
+                            else:
+                                board.movePieces(xtemp, ytemp, 0)
                             if board.getPieces(xtemp, ytemp) == 0:
                                 board.nextPlayerTurn()
 

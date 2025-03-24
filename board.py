@@ -276,6 +276,14 @@ class Board:
     def rotatePiece(self, x, y, direction):
         if isinstance(self.board[y, x], Piece) and self.board[y, x].getPieces() != 0:
             self.board[y, x].setDirection(direction)
+
+    def remouvePiece(self, x, y):
+        if isinstance(self.board[y, x], Piece) and self.board[y, x].getPieces() != 0:
+            if self.board[y, x].getPieces() == 1:
+                self.player1Piece = np.append(self.player1Piece, self.board[y, x])
+            elif self.board[y, x].getPieces() == 2:
+                self.player2Piece = np.append(self.player2Piece, self.board[y, x])
+            self.board[y, x] = 0
     
     def win(self, coordinates, direction):
         directionBis = [1, -1, -1, 1]
