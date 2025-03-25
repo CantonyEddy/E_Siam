@@ -1,11 +1,15 @@
 import pygame
 import math
+
+pygame.font.init()  # Initialize the font module
+
 direction = 0
 directionBis = 0
 x, y = 0, 0
 xtemp, ytemp = 0, 0
 clicked = False
 localization = {(-1, -1): [0, 0], (1, -1): [1, 0], (2, -1): [2, 0], (3, -1): [3, 0], (5, -1): [4, 0], (5, 1): [4, 1], (5, 2): [4, 2], (5, 3): [4, 3], (5, 5): [4, 4], (3, 5): [3, 4], (2, 5): [2, 4], (1, 5): [1, 4], (-1, 5): [0, 4], (-1, 3): [0, 3], (-1, 2): [0, 2], (-1, 1): [0, 1]}
+font = pygame.font.Font(None, 50)
 
 def logicalGame(fenetre, board, event):
     global direction
@@ -98,5 +102,17 @@ def logicalGame(fenetre, board, event):
                             if board.getPieces(xtemp, ytemp) == 0:
                                 board.nextPlayerTurn()
 
-    board.draw(fenetre)
-    board.preplacePiecesCenterRotate(x, y, fenetre, directionBis)
+        board.draw(fenetre)
+        board.preplacePiecesCenterRotate(x, y, fenetre, directionBis)
+        texte = font.render(str(board.getLenPlayers(1)) + " X", True, (255, 255, 255))
+        texte2 = font.render(str(board.getLenPlayers(2)) + " X", True, (255, 255, 255))
+        image_rino = 'Rino.png'
+        image_eleph = 'Eleph.png'
+        rino_image = pygame.image.load(image_rino)
+        rino_image = pygame.transform.scale(rino_image, (50, 50))
+        eleph_image = pygame.image.load(image_eleph)
+        eleph_image = pygame.transform.scale(eleph_image, (50, 50))
+        fenetre.blit(rino_image, (350, 50))
+        fenetre.blit(eleph_image, (350, 500))
+        fenetre.blit(texte, (300, 50))
+        fenetre.blit(texte2, (300, 500))

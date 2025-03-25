@@ -30,7 +30,12 @@ class Board:
         if self.board[y, x] == 0:
             return self.board[y, x]
         return self.board[y, x].getPieces()
-    
+    def getLenPlayers(self, player):
+        if player == 1:
+            return len(self.player1Piece)
+        elif player == 2:
+            return len(self.player2Piece)
+
     def getPiecesRotated(self, x, y):
         return self.board[y, x].getDirection()
     
@@ -85,7 +90,7 @@ class Board:
             #if 0 <= x <= 4 and 0 <= y <= 4 and self.board[y, x] == 0:
             #   fenetre.blit(rock_image, (x*50+275, y*50+150))
             fond_gris = pygame.Surface((48, 48))
-            fond_gris.fill((165, 170, 164))
+            fond_gris.fill((165, 170, 0))
             fenetre.blit(fond_gris, (x*50+276, y*50+151))
             fenetre.blit(rock_image, (x*50+275, y*50+150))
     
@@ -115,7 +120,7 @@ class Board:
                         rock_image = pygame.transform.rotate(rock_image, 90)
                     fenetre.blit(rock_image, (j*50+275, i*50+150))
 
-    def movePieces(self, x, y, direction, balanceOfPowerRock = 1, balanceOfPower = 0, directionPLus = -1):
+    def movePieces(self, x, y, direction, balanceOfPowerRock = 1, balanceOfPower = 0, directionPLus = -1, enter = False):
         if isinstance(self.board[y, x], Piece):
             if direction == 0 and y - 1 >= 0:
                 i = 0
@@ -130,7 +135,7 @@ class Board:
                     i += 1
                     if not (balanceOfPower > 0 and balanceOfPowerRock > 0):
                         break
-                if (balanceOfPower > 0 and balanceOfPowerRock > 0) or (i == 1 and self.board[y-1, x] == 0):
+                if (balanceOfPower > 0 and balanceOfPowerRock > 0) or ((i == 1 and self.board[y-1, x] == 0) and not enter):
                     pieceOut = None
                     for k in range(-i, 0):
                         if y - abs(k) + 1 == 0:
@@ -160,7 +165,7 @@ class Board:
                     i += 1
                     if not (balanceOfPower > 0 and balanceOfPowerRock > 0):
                         break
-                if (balanceOfPower > 0 and balanceOfPowerRock > 0) or (i == 1 and self.board[y, x+1] == 0):
+                if (balanceOfPower > 0 and balanceOfPowerRock > 0) or ((i == 1 and self.board[y, x+1] == 0) and not enter):
                     pieceOut = None
                     for k in range(-i, 0):
                         if x + abs(k) - 1 == self.width - 1:
@@ -190,7 +195,7 @@ class Board:
                     i += 1
                     if not (balanceOfPower > 0 and balanceOfPowerRock > 0):
                         break
-                if (balanceOfPower > 0 and balanceOfPowerRock > 0) or (i == 1 and self.board[y+1, x] == 0):
+                if (balanceOfPower > 0 and balanceOfPowerRock > 0) or ((i == 1 and self.board[y+1, x] == 0) and not enter):
                     pieceOut = None
                     for k in range(-i, 0):
                         if y + abs(k) - 1 == self.width - 1:
@@ -220,7 +225,7 @@ class Board:
                     i += 1
                     if not (balanceOfPower > 0 and balanceOfPowerRock > 0):
                         break
-                if (balanceOfPower > 0 and balanceOfPowerRock > 0) or (i == 1 and self.board[y, x-1] == 0):
+                if (balanceOfPower > 0 and balanceOfPowerRock > 0) or ((i == 1 and self.board[y, x-1] == 0) and not enter):
                     pieceOut = None
                     for k in range(-i, 0):
                         if x - abs(k) + 1 == 0:
@@ -242,13 +247,13 @@ class Board:
         if joueur == 1 and len(self.player1Piece) > 0 and (x == 0 or x == self.width-1 or y == 0 or y == self.height-1):
             if self.board[y, x] != 0:
                 if direction == 0 and y == 4:
-                    self.movePieces(x, y, direction, 2, 1, direction)        
+                    self.movePieces(x, y, direction, 2, 1, direction, True)        
                 elif direction == 1 and x == 0:
-                    self.movePieces(x, y, direction, 2, 1, direction)
+                    self.movePieces(x, y, direction, 2, 1, direction, True)
                 elif direction == 2 and y == 0:
-                    self.movePieces(x, y, direction, 2, 1, direction)
+                    self.movePieces(x, y, direction, 2, 1, direction, True)
                 elif direction == 3 and x == 4:
-                    self.movePieces(x, y, direction, 2, 1, direction)
+                    self.movePieces(x, y, direction, 2, 1, direction, True)
                 if self.board[y, x] != 0:
                         return 1
             self.board[y, x] = self.player1Piece[-1]
@@ -258,13 +263,13 @@ class Board:
         elif joueur == 2 and len(self.player2Piece) > 0 and (x == 0 or x == self.width-1 or y == 0 or y == self.height-1):
             if self.board[y, x] != 0:
                 if direction == 0 and y == 4:
-                    self.movePieces(x, y, direction, 2, 1, direction)
+                    self.movePieces(x, y, direction, 2, 1, direction, True)
                 elif direction == 1 and x == 0:
-                    self.movePieces(x, y, direction, 2, 1, direction)
+                    self.movePieces(x, y, direction, 2, 1, direction, True)
                 elif direction == 2 and y == 0:
-                    self.movePieces(x, y, direction, 2, 1, direction)
+                    self.movePieces(x, y, direction, 2, 1, direction, True)
                 elif direction == 3 and x == 4:
-                    self.movePieces(x, y, direction, 2, 1, direction)
+                    self.movePieces(x, y, direction, 2, 1, direction, True)
                 if self.board[y, x] != 0:
                         return 1
             self.board[y, x] = self.player2Piece[-1]
