@@ -1,5 +1,7 @@
 import pygame
 import math
+import random
+from data import saveData
 
 pygame.font.init()  # Initialize the font module
 
@@ -9,9 +11,11 @@ x, y = 0, 0
 xtemp, ytemp = 0, 0
 clicked = False
 localization = {(-1, -1): [0, 0], (1, -1): [1, 0], (2, -1): [2, 0], (3, -1): [3, 0], (5, -1): [4, 0], (5, 1): [4, 1], (5, 2): [4, 2], (5, 3): [4, 3], (5, 5): [4, 4], (3, 5): [3, 4], (2, 5): [2, 4], (1, 5): [1, 4], (-1, 5): [0, 4], (-1, 3): [0, 3], (-1, 2): [0, 2], (-1, 1): [0, 1]}
+stopAction = True
+data, mouvData = [], []
 font = pygame.font.Font(None, 50)
 
-def logicalGame(fenetre, board, event):
+def logicalGame(fenetre, board, event, ia = False):
     global direction
     global directionBis
     global x, y
@@ -19,8 +23,10 @@ def logicalGame(fenetre, board, event):
     global xtemp, ytemp
     global clicked
     global localization
+    global stopAction
+    global data, mouvData
     # Dessiner le plateau
-    if board.getWinner() == 0:
+    if board.getWinner() == 0 and ((ia and board.getCurrentPlayerTurn()%2+1 == 1) or not ia):
         if event.type == pygame.MOUSEBUTTONDOWN:
             if (x, y) in localization:
                 if event.button == 4:
@@ -62,6 +68,7 @@ def logicalGame(fenetre, board, event):
                     if (x, y) in localization:
                         err = board.enterPiece(board.getCurrentPlayerTurn()%2+1, localization[(x, y)][0], localization[(x, y)][1], direction)
                         if err == 0:
+                            mouvData.append(("e", localization[(x, y)][0], localization[(x, y)][1], direction))
                             board.nextPlayerTurn()
                     elif (0 <= x <= 4) and (0 <= y <= 4):
                         if ((board.getPieces(x, y) == 1 == board.getCurrentPlayerTurn()%2+1) or (board.getPieces(x, y) == 2 == board.getCurrentPlayerTurn()%2+1) and directionBis != 0):
@@ -71,48 +78,110 @@ def logicalGame(fenetre, board, event):
                             elif directionTemp < 0:
                                 directionTemp = math.abs(directionTemp)
                             board.rotatePiece(x, y, directionTemp)
+                            mouvData.append(("r", x, y, directionTemp))
                             board.nextPlayerTurn()                    
                 elif (-1 <= xtemp <= 5) and (-1 <= ytemp <= 5):
+                        validAddMouvInDataBase = True
                         if (x == xtemp+1 and y == ytemp and board.getPieces(xtemp, ytemp) == board.getCurrentPlayerTurn()%2+1):
                             if x == 5:
                                 board.remouvePiece(xtemp, ytemp)
+                                mouvData.append(("a", xtemp, ytemp))
+                                validAddMouvInDataBase = False
                             else:
                                 board.movePieces(xtemp, ytemp, 1)
                             if board.getPieces(xtemp, ytemp) == 0:
+                                if validAddMouvInDataBase:
+                                    mouvData.append(("m", xtemp, ytemp, 1))
                                 board.nextPlayerTurn()
                         elif (x == xtemp-1 and y == ytemp and board.getPieces(xtemp, ytemp) == board.getCurrentPlayerTurn()%2+1):
                             if x == -1:
                                 board.remouvePiece(xtemp, ytemp)
+                                mouvData.append(("a", xtemp, ytemp))
+                                validAddMouvInDataBase = False
                             else:
                                 board.movePieces(xtemp, ytemp, 3)
                             if board.getPieces(xtemp, ytemp) == 0:
+                                if validAddMouvInDataBase:
+                                    mouvData.append(("m", xtemp, ytemp, 3))
                                 board.nextPlayerTurn()
                         elif (y == ytemp+1 and x == xtemp and board.getPieces(xtemp, ytemp) == board.getCurrentPlayerTurn()%2+1):
                             if y == 5:
                                 board.remouvePiece(xtemp, ytemp)
+                                mouvData.append(("a", xtemp, ytemp))
+                                validAddMouvInDataBase = False
                             else:
                                 board.movePieces(xtemp, ytemp, 2)
                             if board.getPieces(xtemp, ytemp) == 0:
+                                if validAddMouvInDataBase:
+                                    mouvData.append(("m", xtemp, ytemp, 2))
                                 board.nextPlayerTurn()
                         elif (y == ytemp-1 and x == xtemp and board.getPieces(xtemp, ytemp) == board.getCurrentPlayerTurn()%2+1):
                             if y == -1:
                                 board.remouvePiece(xtemp, ytemp)
+                                mouvData.append(("a", xtemp, ytemp))
+                                validAddMouvInDataBase = False
                             else:
                                 board.movePieces(xtemp, ytemp, 0)
                             if board.getPieces(xtemp, ytemp) == 0:
+                                if validAddMouvInDataBase:
+                                    mouvData.append(("m", xtemp, ytemp, 0))
                                 board.nextPlayerTurn()
-
-        board.draw(fenetre)
-        board.preplacePiecesCenterRotate(x, y, fenetre, directionBis)
-        texte = font.render(str(board.getLenPlayers(1)) + " X", True, (255, 255, 255))
-        texte2 = font.render(str(board.getLenPlayers(2)) + " X", True, (255, 255, 255))
-        image_rino = 'Rino.png'
-        image_eleph = 'Eleph.png'
-        rino_image = pygame.image.load(image_rino)
-        rino_image = pygame.transform.scale(rino_image, (50, 50))
-        eleph_image = pygame.image.load(image_eleph)
-        eleph_image = pygame.transform.scale(eleph_image, (50, 50))
-        fenetre.blit(rino_image, (350, 50))
-        fenetre.blit(eleph_image, (350, 500))
-        fenetre.blit(texte, (300, 50))
-        fenetre.blit(texte2, (300, 500))
+            #print(board.listMoves(board.getCurrentPlayerTurn()%2+1))
+    elif board.getWinner() == 0 and (ia and board.getCurrentPlayerTurn()%2+1 == 2):
+        mouv = board.listMoves(board.getCurrentPlayerTurn()%2+1)
+        if len(mouv) > 0:
+            mouvement = mouv[random.randint(0, len(mouv)-1)]
+            if mouvement[0] == "e":
+                board.enterPiece(board.getCurrentPlayerTurn()%2+1, mouvement[2], mouvement[1], mouvement[3])
+                mouvData.append(mouvement)
+            elif mouvement[0] == "m":
+                board.movePieces(mouvement[2], mouvement[1], mouvement[3])
+                mouvData.append(mouvement)
+            elif mouvement[0] == "a":
+                board.remouvePiece(mouvement[2], mouvement[1])
+                mouvData.append(mouvement)
+            elif mouvement[0] == "t":
+                board.rotatePiece(mouvement[2], mouvement[1], mouvement[3])
+                mouvData.append(mouvement)
+            board.nextPlayerTurn()
+    elif board.getWinner() == 1:
+        texte = font.render("Player 1 wins", True, (255, 255, 255))
+        fenetre.blit(texte, (300, 300))
+        if stopAction:
+            data.append("player")
+            if ia:
+                data.append("ia")
+            else:
+                data.append("player")
+            data.append(1)
+            data.append(mouvData)
+            saveData(data)
+            stopAction = False
+    elif board.getWinner() == 2:
+        texte = font.render("Player 2 wins", True, (255, 255, 255))
+        fenetre.blit(texte, (300, 300))
+        if stopAction:
+            data.append("player")
+            if ia:
+                data.append("ia")
+            else:
+                data.append("player")
+            data.append(2)
+            data.append(mouvData)
+            saveData(data)
+            stopAction = False
+    board.draw(fenetre)
+    board.preplacePiecesCenterRotate(x, y, fenetre, directionBis)
+    texte = font.render(str(board.getLenPlayers(1)) + " X", True, (255, 255, 255))
+    texte2 = font.render(str(board.getLenPlayers(2)) + " X", True, (255, 255, 255))
+    image_rino = 'Rino.png'
+    image_eleph = 'Eleph.png'
+    rino_image = pygame.image.load(image_rino)
+    rino_image = pygame.transform.scale(rino_image, (50, 50))
+    eleph_image = pygame.image.load(image_eleph)
+    eleph_image = pygame.transform.scale(eleph_image, (50, 50))
+    fenetre.blit(rino_image, (350, 50))
+    fenetre.blit(eleph_image, (350, 500))
+    fenetre.blit(texte, (300, 50))
+    fenetre.blit(texte2, (300, 500))
+    

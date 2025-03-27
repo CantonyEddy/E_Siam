@@ -47,7 +47,7 @@ class Board:
     
     def preplacePieces(self, x, y, fenetre, direction):
         localization = [[-1, -1], [1, -1], [2, -1], [3, -1], [5, -1], [5, 1], [5, 2], [5, 3], [5, 5], [3, 5], [2, 5], [1, 5], [-1, 5], [-1, 3], [-1, 2], [-1, 1]]
-        if [x, y] in localization:
+        if [x, y] in localization and self.getLenPlayers(self.currentPlayerTurn%2+1) > 0:
             pygame.draw.rect(fenetre, (0, 0, 0), (x*50+275, y*50+150, 50, 50), 1)
             if self.currentPlayerTurn%2 == 0:
                 image_file = 'Rino.png'
@@ -120,7 +120,7 @@ class Board:
                         rock_image = pygame.transform.rotate(rock_image, 90)
                     fenetre.blit(rock_image, (j*50+275, i*50+150))
 
-    def movePieces(self, x, y, direction, balanceOfPowerRock = 1, balanceOfPower = 0, directionPLus = -1, enter = False):
+    def movePieces(self, x, y, direction, balanceOfPowerRock = 1, balanceOfPower = 0, directionPLus = -1, enter = False, istest = False):
         if isinstance(self.board[y, x], Piece):
             if direction == 0 and y - 1 >= 0:
                 i = 0
@@ -146,11 +146,11 @@ class Board:
                             self.board[y - abs(k), x] = self.board[y - abs(k) + 1, x]
                             self.board[y - abs(k) + 1, x] = 0
                     if isinstance(pieceOut, Piece) and pieceOut.getPieces() != 0:
-                        if pieceOut.getPieces() == 1:
+                        if pieceOut.getPieces() == 1 and not istest:
                             self.player1Piece = np.append(self.player1Piece, pieceOut)
-                        elif pieceOut.getPieces() == 2:
+                        elif pieceOut.getPieces() == 2 and not istest:
                             self.player2Piece = np.append(self.player2Piece, pieceOut)
-                    elif isinstance(pieceOut, Piece) and pieceOut.getPieces() == 0:
+                    elif isinstance(pieceOut, Piece) and pieceOut.getPieces() == 0 and not istest:
                         self.win(coordinate, direction)
             elif direction == 1 and x + 1 < self.width:
                 i = 0
@@ -160,7 +160,7 @@ class Board:
                     elif (self.board[y, x + i].getDirection() == self.board[y, x].getDirection() or self.board[y, x].getPieces() == 0) and self.board[y, x + i].getDirection() == direction:
                         balanceOfPower += 1
                         balanceOfPowerRock += 1
-                    elif self.board[y, x + i].getDirection() == OPOSITE[self.board[y, x].getDirection()] or (directionPLus != -1 and self.board[y, x + 1].getDirection() == OPOSITE[directionPLus]):
+                    elif self.board[y, x + i].getDirection() == OPOSITE[self.board[y, x].getDirection()] or (directionPLus != -1 and self.board[y, x + i].getDirection() == OPOSITE[directionPLus]):
                         balanceOfPower -= 1
                     i += 1
                     if not (balanceOfPower > 0 and balanceOfPowerRock > 0):
@@ -176,11 +176,11 @@ class Board:
                             self.board[y, x + abs(k)] = self.board[y, x + abs(k) - 1]
                             self.board[y, x + abs(k) - 1] = 0
                     if isinstance(pieceOut, Piece) and pieceOut.getPieces() != 0:
-                        if pieceOut.getPieces() == 1:
+                        if pieceOut.getPieces() == 1 and not istest:
                             self.player1Piece = np.append(self.player1Piece, pieceOut)
-                        elif pieceOut.getPieces() == 2:
+                        elif pieceOut.getPieces() == 2 and not istest:
                             self.player2Piece = np.append(self.player2Piece, pieceOut)
-                    elif isinstance(pieceOut, Piece) and pieceOut.getPieces() == 0:
+                    elif isinstance(pieceOut, Piece) and pieceOut.getPieces() == 0 and not istest:
                         self.win(coordinate, direction)
             elif direction == 2 and y + 1 < self.height:
                 i = 0
@@ -206,11 +206,11 @@ class Board:
                             self.board[y + abs(k), x] = self.board[y + abs(k) - 1, x]
                             self.board[y + abs(k) - 1, x] = 0
                     if isinstance(pieceOut, Piece) and pieceOut.getPieces() != 0:
-                        if pieceOut.getPieces() == 1:
+                        if pieceOut.getPieces() == 1 and not istest:
                             self.player1Piece = np.append(self.player1Piece, pieceOut)
-                        elif pieceOut.getPieces() == 2:
+                        elif pieceOut.getPieces() == 2 and not istest:
                             self.player2Piece = np.append(self.player2Piece, pieceOut)
-                    elif isinstance(pieceOut, Piece) and pieceOut.getPieces() == 0:
+                    elif isinstance(pieceOut, Piece) and pieceOut.getPieces() == 0 and not istest:
                         self.win(coordinate, direction)
             elif direction == 3 and x - 1 >= 0:
                 i = 0
@@ -236,45 +236,41 @@ class Board:
                             self.board[y, x - abs(k)] = self.board[y, x - abs(k) + 1]
                             self.board[y, x - abs(k) + 1] = 0
                     if isinstance(pieceOut, Piece) and pieceOut.getPieces() != 0:
-                        if pieceOut.getPieces() == 1:
+                        if pieceOut.getPieces() == 1 and not istest:
                             self.player1Piece = np.append(self.player1Piece, pieceOut)
-                        elif pieceOut.getPieces() == 2:
+                        elif pieceOut.getPieces() == 2 and not istest:
                             self.player2Piece = np.append(self.player2Piece, pieceOut)
-                    elif isinstance(pieceOut, Piece) and pieceOut.getPieces() == 0:
+                    elif isinstance(pieceOut, Piece) and pieceOut.getPieces() == 0 and not istest:
                         self.win(coordinate, direction)
 
-    def enterPiece(self, joueur, x, y, direction):
+    def enterPiece(self, joueur, x, y, direction, istest=False):
         if joueur == 1 and len(self.player1Piece) > 0 and (x == 0 or x == self.width-1 or y == 0 or y == self.height-1):
             if self.board[y, x] != 0:
-                if direction == 0 and y == 4:
-                    self.movePieces(x, y, direction, 2, 1, direction, True)        
-                elif direction == 1 and x == 0:
-                    self.movePieces(x, y, direction, 2, 1, direction, True)
-                elif direction == 2 and y == 0:
-                    self.movePieces(x, y, direction, 2, 1, direction, True)
-                elif direction == 3 and x == 4:
-                    self.movePieces(x, y, direction, 2, 1, direction, True)
+                if (direction == 0 and y == 4) or (direction == 1 and x == 0) or (direction == 2 and y == 0) or (direction == 3 and x == 4):
+                    if istest:
+                        self.movePieces(x, y, direction, 2, 1, direction, True, True)
+                    else:
+                        self.movePieces(x, y, direction, 2, 1, direction, True)
                 if self.board[y, x] != 0:
                         return 1
-            self.board[y, x] = self.player1Piece[-1]
-            self.player1Piece = np.delete(self.player1Piece, -1)
-            self.board[y, x].setDirection(direction)
+            if not istest:
+                self.board[y, x] = self.player1Piece[-1]
+                self.player1Piece = np.delete(self.player1Piece, -1)
+                self.board[y, x].setDirection(direction)
             return 0
         elif joueur == 2 and len(self.player2Piece) > 0 and (x == 0 or x == self.width-1 or y == 0 or y == self.height-1):
             if self.board[y, x] != 0:
-                if direction == 0 and y == 4:
-                    self.movePieces(x, y, direction, 2, 1, direction, True)
-                elif direction == 1 and x == 0:
-                    self.movePieces(x, y, direction, 2, 1, direction, True)
-                elif direction == 2 and y == 0:
-                    self.movePieces(x, y, direction, 2, 1, direction, True)
-                elif direction == 3 and x == 4:
-                    self.movePieces(x, y, direction, 2, 1, direction, True)
+                if (direction == 0 and y == 4) or (direction == 1 and x == 0) or (direction == 2 and y == 0) or (direction == 3 and x == 4):
+                    if istest:
+                        self.movePieces(x, y, direction, 2, 1, direction, True, True)
+                    else:
+                        self.movePieces(x, y, direction, 2, 1, direction, True)
                 if self.board[y, x] != 0:
                         return 1
-            self.board[y, x] = self.player2Piece[-1]
-            self.player2Piece = np.delete(self.player2Piece, -1)
-            self.board[y, x].setDirection(direction)
+            if not istest:
+                self.board[y, x] = self.player2Piece[-1]
+                self.player2Piece = np.delete(self.player2Piece, -1)
+                self.board[y, x].setDirection(direction)
             return 0
         return 1
 
@@ -289,6 +285,52 @@ class Board:
             elif self.board[y, x].getPieces() == 2:
                 self.player2Piece = np.append(self.player2Piece, self.board[y, x])
             self.board[y, x] = 0
+
+
+    def isMoveValid(self, x, y, direction, enter = False, player = None):
+        retour = False
+        tempBorad = self.board.copy()
+        if not enter:
+            self.movePieces(y, x, direction, balanceOfPowerRock = 1, balanceOfPower = 0, directionPLus = -1, enter = False, istest = True)
+            if self.getPieces(y, x) == 0:
+                retour = True
+            self.board = tempBorad.copy()
+        else:
+            err = self.enterPiece(player, y, x, direction, True)
+            if err == 0:
+                retour = True
+            self.board = tempBorad.copy()
+        return retour
+        
+    def listMoves(self, player):
+        moves = []
+        for y in range(self.height):
+            for x in range(self.width):
+                if self.getPieces(y, x) == player:
+                    for d in range(4):
+                        if self.isMoveValid(x, y, d):
+                            moves.append(("m", x, y, d))
+                        if x == 0 and d == 0:
+                            moves.append(("a", x, y))
+                        if x == 4 and d == 2:
+                            moves.append(("a", x, y))
+                        if y == 0 and d == 3:
+                            moves.append(("a", x, y))
+                        if y == 4 and d == 1:
+                            moves.append(("a", x, y))
+                        if self.getPieces(y, x) == player and self.getPiecesRotated(y, x) != d:
+                            moves.append(("t", x, y, d))
+        for i in range(self.height):
+            for d in range(4):
+                if self.isMoveValid(i, 0, d, True, player):
+                    moves.append(("e", i, 0, d))
+                if self.isMoveValid(i, 4, d, True, player):
+                    moves.append(("e", i, 4, d))
+                if self.isMoveValid(0, i, d, True, player):
+                    moves.append(("e", 0, i, d))
+                if self.isMoveValid(4, i, d, True, player):
+                    moves.append(("e", 4, i, d))
+        return moves
     
     def win(self, coordinates, direction):
         directionBis = [1, -1, -1, 1]
