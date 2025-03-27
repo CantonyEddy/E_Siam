@@ -93,6 +93,14 @@ class Board:
             fond_gris.fill((165, 170, 0))
             fenetre.blit(fond_gris, (x*50+276, y*50+151))
             fenetre.blit(rock_image, (x*50+275, y*50+150))
+
+    def getBoard(self):
+        temp = self.board.copy()
+        for i in range(self.height):
+            for j in range(self.width):
+                if isinstance(temp[i, j], Piece):
+                    temp[i, j] = (temp[i, j].getPieces(), temp[i, j].getDirection())
+        return temp
     
     def draw(self, fenetre):
         for i in range(self.height):
