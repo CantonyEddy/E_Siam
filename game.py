@@ -15,7 +15,7 @@ stopAction = True
 data, mouvData = [], []
 font = pygame.font.Font(None, 50)
 
-def logicalGame(fenetre, board, event, ia = False):
+def logicalGame(fenetre, board, event, ia = False, ia_vs_ia = False):
     global direction
     global directionBis
     global x, y
@@ -26,7 +26,7 @@ def logicalGame(fenetre, board, event, ia = False):
     global stopAction
     global data, mouvData
     # Dessiner le plateau
-    if board.getWinner() == 0 and ((ia and board.getCurrentPlayerTurn()%2+1 == 1) or not ia):
+    if board.getWinner() == 0 and ((ia and board.getCurrentPlayerTurn()%2+1 == 1) or not ia) and not ia_vs_ia:
         if event.type == pygame.MOUSEBUTTONDOWN:
             if (x, y) in localization:
                 if event.button == 4:
@@ -137,7 +137,7 @@ def logicalGame(fenetre, board, event, ia = False):
                                     mouvData.append(board.getBoard())
                                 board.nextPlayerTurn()
             #print(board.listMoves(board.getCurrentPlayerTurn()%2+1))
-    elif board.getWinner() == 0 and (ia and board.getCurrentPlayerTurn()%2+1 == 2):
+    elif board.getWinner() == 0 and ((ia and board.getCurrentPlayerTurn()%2+1 == 2) or ia_vs_ia):
         mouv = board.listMoves(board.getCurrentPlayerTurn()%2+1)
         if len(mouv) > 0:
             mouvement = mouv[random.randint(0, len(mouv)-1)]
