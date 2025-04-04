@@ -141,7 +141,7 @@ def logicalGame(fenetre, board, event, ia = False, ia_vs_ia = False):
     elif board.getWinner() == 0 and ((ia and board.getCurrentPlayerTurn()%2+1 == 2) or ia_vs_ia):
         mouv = board.listMoves(board.getCurrentPlayerTurn()%2+1)
         if len(mouv) > 0:
-            addPoidData(loadData(), mouv, board.getBoard())
+            #addPoidData(loadData(), mouv, board.getBoard())
             mouvement_key = random.choice(list(mouv.keys()))
             mouvement = mouvement_key
             if mouvement[0] == "e":

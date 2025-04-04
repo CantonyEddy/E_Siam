@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 
 def saveData(data):
+    print(data)
     with open("data.csv", "a+", newline="", encoding="utf-8") as fichier:
         fichier.seek(0)
         reader = csv.reader(fichier)
