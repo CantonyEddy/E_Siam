@@ -95,11 +95,15 @@ class Board:
             fenetre.blit(rock_image, (x*50+275, y*50+150))
 
     def getBoard(self):
-        temp = self.board.copy()
+        temp = []
         for i in range(self.height):
+            row = []
             for j in range(self.width):
-                if isinstance(temp[i, j], Piece):
-                    temp[i, j] = (temp[i, j].getPieces(), temp[i, j].getDirection())
+                if isinstance(self.board[i, j], Piece):
+                    row.append((self.board[i, j].getPieces(), self.board[i, j].getDirection()))
+                else:
+                    row.append(0)
+            temp.append(row)
         return temp
     
     def draw(self, fenetre):

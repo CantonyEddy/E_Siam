@@ -58,22 +58,15 @@ def loadData(filepath: str):
 
     # Parcours 2 lignes par 2 lignes
     for i in range(0, len(df), 2):
-        X = []
-        y = []
-        info = []
         info_line = df.iloc[i, :5]
         state_line = df.iloc[i, 5:]
         move_line = df.iloc[i+1, 5:]
 
         # Nettoyage : suppression des NaN
-        state_clean = state_line.dropna().tolist()
-        move_clean = move_line.dropna().tolist()
+        state_clean = [ast.literal_eval(item) if isinstance(item, str) and item.startswith("(") and item.endswith(")") else item for item in state_line.dropna().tolist()]
+        move_clean = [ast.literal_eval(item) if isinstance(item, str) and item.startswith("[") and item.endswith("]") else item for item in move_line.dropna().tolist()]
         info_line_clean = info_line.dropna().tolist()
-
-        X.append(state_clean)
-        y.append(move_clean)
-        info.append(info_line_clean)
-        data.append([info, X, y])
+        data.append([info_line_clean, state_clean, move_clean])
 
     return data
 
