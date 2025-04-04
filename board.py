@@ -311,33 +311,33 @@ class Board:
         return retour
         
     def listMoves(self, player):
-        moves = []
+        moves = {}
         for y in range(self.height):
             for x in range(self.width):
                 if self.getPieces(y, x) == player:
                     for d in range(4):
                         if self.isMoveValid(x, y, d):
-                            moves.append(("m", x, y, d))
+                            moves[("m", x, y, d)] = 0
                         if x == 0 and d == 0:
-                            moves.append(("a", x, y))
+                            moves[("a", x, y)] = 0
                         if x == 4 and d == 2:
-                            moves.append(("a", x, y))
+                            moves[("a", x, y)] = 0
                         if y == 0 and d == 3:
-                            moves.append(("a", x, y))
+                            moves[("a", x, y)] = 0
                         if y == 4 and d == 1:
-                            moves.append(("a", x, y))
+                            moves[("a", x, y)] = 0
                         if self.getPieces(y, x) == player and self.getPiecesRotated(y, x) != d:
-                            moves.append(("t", x, y, d))
+                            moves[("t", x, y, d)] = 0
         for i in range(self.height):
             for d in range(4):
                 if self.isMoveValid(i, 0, d, True, player):
-                    moves.append(("e", i, 0, d))
+                    moves[("e", i, 0, d)] = 0
                 if self.isMoveValid(i, 4, d, True, player):
-                    moves.append(("e", i, 4, d))
+                    moves[("e", i, 4, d)] = 0
                 if self.isMoveValid(0, i, d, True, player):
-                    moves.append(("e", 0, i, d))
+                    moves[("e", 0, i, d)] = 0
                 if self.isMoveValid(4, i, d, True, player):
-                    moves.append(("e", 4, i, d))
+                    moves[("e", 4, i, d)] = 0
         return moves
     
     def win(self, coordinates, direction):

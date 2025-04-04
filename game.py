@@ -1,7 +1,7 @@
 import pygame
 import math
 import random
-from data import saveData
+from data import *
 
 pygame.font.init()  # Initialize the font module
 
@@ -27,6 +27,7 @@ def logicalGame(fenetre, board, event, ia = False, ia_vs_ia = False):
     global data, mouvData
     # Dessiner le plateau
     if board.getWinner() == 0 and ((ia and board.getCurrentPlayerTurn()%2+1 == 1) or not ia) and not ia_vs_ia:
+        print("Player 1 turn")
         if event.type == pygame.MOUSEBUTTONDOWN:
             if (x, y) in localization:
                 if event.button == 4:
@@ -140,7 +141,9 @@ def logicalGame(fenetre, board, event, ia = False, ia_vs_ia = False):
     elif board.getWinner() == 0 and ((ia and board.getCurrentPlayerTurn()%2+1 == 2) or ia_vs_ia):
         mouv = board.listMoves(board.getCurrentPlayerTurn()%2+1)
         if len(mouv) > 0:
-            mouvement = mouv[random.randint(0, len(mouv)-1)]
+            addPoidData(loadData(), mouv, board.getBoard())
+            mouvement_key = random.choice(list(mouv.keys()))
+            mouvement = mouvement_key
             if mouvement[0] == "e":
                 board.enterPiece(board.getCurrentPlayerTurn()%2+1, mouvement[2], mouvement[1], mouvement[3])
                 mouvData.append((board.getCurrentPlayerTurn()%2+1, mouvement))
@@ -162,8 +165,11 @@ def logicalGame(fenetre, board, event, ia = False, ia_vs_ia = False):
         texte = font.render("Player 1 wins", True, (255, 255, 255))
         fenetre.blit(texte, (300, 300))
         if stopAction:
-            data.append("player")
-            if ia:
+            if ia_vs_ia:
+                data.append("ia")
+            else:
+                data.append("player")
+            if ia or ia_vs_ia:
                 data.append("ia")
             else:
                 data.append("player")
@@ -175,8 +181,11 @@ def logicalGame(fenetre, board, event, ia = False, ia_vs_ia = False):
         texte = font.render("Player 2 wins", True, (255, 255, 255))
         fenetre.blit(texte, (300, 300))
         if stopAction:
-            data.append("player")
-            if ia:
+            if ia_vs_ia:
+                data.append("ia")
+            else:
+                data.append("player")
+            if ia or ia_vs_ia:
                 data.append("ia")
             else:
                 data.append("player")
