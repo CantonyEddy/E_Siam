@@ -12,7 +12,7 @@ xtemp, ytemp = 0, 0
 clicked = False
 localization = {(-1, -1): [0, 0], (1, -1): [1, 0], (2, -1): [2, 0], (3, -1): [3, 0], (5, -1): [4, 0], (5, 1): [4, 1], (5, 2): [4, 2], (5, 3): [4, 3], (5, 5): [4, 4], (3, 5): [3, 4], (2, 5): [2, 4], (1, 5): [1, 4], (-1, 5): [0, 4], (-1, 3): [0, 3], (-1, 2): [0, 2], (-1, 1): [0, 1]}
 stopAction = True
-data, mouvData = [], []
+data, mouvData, gridData = [], [], []
 font = pygame.font.Font(None, 50)
 
 def logicalGame(fenetre, board, event, ia = False, ia_vs_ia = False):
@@ -24,7 +24,7 @@ def logicalGame(fenetre, board, event, ia = False, ia_vs_ia = False):
     global clicked
     global localization
     global stopAction
-    global data, mouvData
+    global data, mouvData, gridData
     # Dessiner le plateau
     if board.getWinner() == 0 and ((ia and board.getCurrentPlayerTurn()%2+1 == 1) or not ia) and not ia_vs_ia:
         print("Player 1 turn")
@@ -70,7 +70,7 @@ def logicalGame(fenetre, board, event, ia = False, ia_vs_ia = False):
                         err = board.enterPiece(board.getCurrentPlayerTurn()%2+1, localization[(x, y)][0], localization[(x, y)][1], direction)
                         if err == 0:
                             mouvData.append((board.getCurrentPlayerTurn()%2+1, ("e", localization[(x, y)][0], localization[(x, y)][1], direction)))
-                            mouvData.append(board.getBoard())
+                            gridData.append(board.getBoard())
                             board.nextPlayerTurn()
                     elif (0 <= x <= 4) and (0 <= y <= 4):
                         if ((board.getPieces(x, y) == 1 == board.getCurrentPlayerTurn()%2+1) or (board.getPieces(x, y) == 2 == board.getCurrentPlayerTurn()%2+1) and directionBis != 0):
@@ -81,7 +81,7 @@ def logicalGame(fenetre, board, event, ia = False, ia_vs_ia = False):
                                 directionTemp = math.abs(directionTemp)
                             board.rotatePiece(x, y, directionTemp)
                             mouvData.append((board.getCurrentPlayerTurn()%2+1, ("t", x, y, directionTemp)))
-                            mouvData.append(board.getBoard())
+                            gridData.append(board.getBoard())
                             board.nextPlayerTurn()                    
                 elif (-1 <= xtemp <= 5) and (-1 <= ytemp <= 5):
                         validAddMouvInDataBase = True
@@ -89,77 +89,77 @@ def logicalGame(fenetre, board, event, ia = False, ia_vs_ia = False):
                             if x == 5:
                                 board.remouvePiece(xtemp, ytemp)
                                 mouvData.append((board.getCurrentPlayerTurn()%2+1, ("a", xtemp, ytemp)))
-                                mouvData.append(board.getBoard())
+                                gridData.append(board.getBoard())
                                 validAddMouvInDataBase = False
                             else:
                                 board.movePieces(xtemp, ytemp, 1)
                             if board.getPieces(xtemp, ytemp) == 0:
                                 if validAddMouvInDataBase:
                                     mouvData.append((board.getCurrentPlayerTurn()%2+1, ("m", xtemp, ytemp, 1)))
-                                    mouvData.append(board.getBoard())
+                                    gridData.append(board.getBoard())
                                 board.nextPlayerTurn()
                         elif (x == xtemp-1 and y == ytemp and board.getPieces(xtemp, ytemp) == board.getCurrentPlayerTurn()%2+1):
                             if x == -1:
                                 board.remouvePiece(xtemp, ytemp)
                                 mouvData.append((board.getCurrentPlayerTurn()%2+1, ("a", xtemp, ytemp)))
-                                mouvData.append(board.getBoard())
+                                gridData.append(board.getBoard())
                                 validAddMouvInDataBase = False
                             else:
                                 board.movePieces(xtemp, ytemp, 3)
                             if board.getPieces(xtemp, ytemp) == 0:
                                 if validAddMouvInDataBase:
                                     mouvData.append((board.getCurrentPlayerTurn()%2+1, ("m", xtemp, ytemp, 3)))
-                                    mouvData.append(board.getBoard())
+                                    gridData.append(board.getBoard())
                                 board.nextPlayerTurn()
                         elif (y == ytemp+1 and x == xtemp and board.getPieces(xtemp, ytemp) == board.getCurrentPlayerTurn()%2+1):
                             if y == 5:
                                 board.remouvePiece(xtemp, ytemp)
                                 mouvData.append((board.getCurrentPlayerTurn()%2+1, ("a", xtemp, ytemp)))
-                                mouvData.append(board.getBoard())
+                                gridData.append(board.getBoard())
                                 validAddMouvInDataBase = False
                             else:
                                 board.movePieces(xtemp, ytemp, 2)
                             if board.getPieces(xtemp, ytemp) == 0:
                                 if validAddMouvInDataBase:
                                     mouvData.append((board.getCurrentPlayerTurn()%2+1, ("m", xtemp, ytemp, 2)))
-                                    mouvData.append(board.getBoard())
+                                    gridData.append(board.getBoard())
                                 board.nextPlayerTurn()
                         elif (y == ytemp-1 and x == xtemp and board.getPieces(xtemp, ytemp) == board.getCurrentPlayerTurn()%2+1):
                             if y == -1:
                                 board.remouvePiece(xtemp, ytemp)
                                 mouvData.append((board.getCurrentPlayerTurn()%2+1, ("a", xtemp, ytemp)))
-                                mouvData.append(board.getBoard())
+                                gridData.append(board.getBoard())
                                 validAddMouvInDataBase = False
                             else:
                                 board.movePieces(xtemp, ytemp, 0)
                             if board.getPieces(xtemp, ytemp) == 0:
                                 if validAddMouvInDataBase:
                                     mouvData.append((board.getCurrentPlayerTurn()%2+1, ("m", xtemp, ytemp, 0)))
-                                    mouvData.append(board.getBoard())
+                                    gridData.append(board.getBoard())
                                 board.nextPlayerTurn()
             #print(board.listMoves(board.getCurrentPlayerTurn()%2+1))
     elif board.getWinner() == 0 and ((ia and board.getCurrentPlayerTurn()%2+1 == 2) or ia_vs_ia):
         mouv = board.listMoves(board.getCurrentPlayerTurn()%2+1)
         if len(mouv) > 0:
-            addPoidData(loadData(), mouv, board.getBoard())
+            #addPoidData(loadData(), mouv, board.getBoard())
             mouvement_key = random.choice(list(mouv.keys()))
             mouvement = mouvement_key
             if mouvement[0] == "e":
                 board.enterPiece(board.getCurrentPlayerTurn()%2+1, mouvement[2], mouvement[1], mouvement[3])
                 mouvData.append((board.getCurrentPlayerTurn()%2+1, mouvement))
-                mouvData.append(board.getBoard())
+                gridData.append(board.getBoard())
             elif mouvement[0] == "m":
                 board.movePieces(mouvement[2], mouvement[1], mouvement[3])
                 mouvData.append((board.getCurrentPlayerTurn()%2+1, mouvement))
-                mouvData.append(board.getBoard())
+                gridData.append(board.getBoard())
             elif mouvement[0] == "a":
                 board.remouvePiece(mouvement[2], mouvement[1])
                 mouvData.append((board.getCurrentPlayerTurn()%2+1, mouvement))
-                mouvData.append(board.getBoard())
+                gridData.append(board.getBoard())
             elif mouvement[0] == "t":
                 board.rotatePiece(mouvement[2], mouvement[1], mouvement[3])
                 mouvData.append((board.getCurrentPlayerTurn()%2+1, mouvement))
-                mouvData.append(board.getBoard())
+                gridData.append(board.getBoard())
             board.nextPlayerTurn()
     elif board.getWinner() == 1:
         texte = font.render("Player 1 wins", True, (255, 255, 255))
@@ -175,8 +175,12 @@ def logicalGame(fenetre, board, event, ia = False, ia_vs_ia = False):
                 data.append("player")
             data.append(1)
             data.append(mouvData)
+            data.append(gridData)
             saveData(data)
             stopAction = False
+            data_pure = loadData("data.csv")
+            print(data_pure)
+
     elif board.getWinner() == 2:
         texte = font.render("Player 2 wins", True, (255, 255, 255))
         fenetre.blit(texte, (300, 300))
@@ -191,8 +195,11 @@ def logicalGame(fenetre, board, event, ia = False, ia_vs_ia = False):
                 data.append("player")
             data.append(2)
             data.append(mouvData)
+            data.append(gridData)
             saveData(data)
             stopAction = False
+            data_pure = loadData("data.csv")
+            print(data_pure)
     board.draw(fenetre)
     board.preplacePiecesCenterRotate(x, y, fenetre, directionBis)
     texte = font.render(str(board.getLenPlayers(1)) + " X", True, (255, 255, 255))

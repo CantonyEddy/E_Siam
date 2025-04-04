@@ -28,7 +28,7 @@ while running:
         
         # Remplir l'écran avec la couleur de fond
         fenetre.fill(gris)
-        logicalGame(fenetre, board, event, False, True)
+        logicalGame(fenetre, board, event, True, False)
      
         # Mettre à jour l'affichage
         pygame.display.flip()
