@@ -360,3 +360,6 @@ class Board:
                     self.winner = self.board[coordinates[0], coordinates[1] + (i*directionBis[direction])].getPieces()
                     break
                 i += 1
+
+    def tie(self):
+        self.winner = 3

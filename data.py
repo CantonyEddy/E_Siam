@@ -60,25 +60,72 @@ def loadData(filepath: str):
     for i in range(0, len(df), 2):
         info_line = df.iloc[i, :5]
         state_line = df.iloc[i, 5:]
-        move_line = df.iloc[i+1, 5:]
+        move_line = df.iloc[i + 1, 5:]
 
-        # Nettoyage : suppression des NaN
-        state_clean = [ast.literal_eval(item) if isinstance(item, str) and item.startswith("(") and item.endswith(")") else item for item in state_line.dropna().tolist()]
-        move_clean = [ast.literal_eval(item) if isinstance(item, str) and item.startswith("[") and item.endswith("]") else item for item in move_line.dropna().tolist()]
-        info_line_clean = info_line.dropna().tolist()
-        data.append([info_line_clean, state_clean, move_clean])
+        try:
+            # Nettoyage : suppression des NaN
+            state_clean = [ast.literal_eval(item) if isinstance(item, str) and item.startswith("(") and item.endswith(")") else item for item in state_line.dropna().tolist()]
+            move_clean = [ast.literal_eval(item) if isinstance(item, str) and item.startswith("[") and item.endswith("]") else item for item in move_line.dropna().tolist()]
+            info_line_clean = info_line.dropna().tolist()
+            data.append([info_line_clean, state_clean, move_clean])
+        except (SyntaxError, ValueError) as e:
+            print(f"Skipping invalid row at index {i}: {e}")
+
+    # Transformer la liste en DataFrame pandas
+    data = pd.DataFrame(data, columns=["Info", "Move", "State"])
+
+    # Convertir les colonnes "State" et "Move" en chaînes pour éviter les problèmes d'hétérogénéité
+    data["State"] = data["State"].apply(lambda x: np.array(x, dtype=object) if isinstance(x, list) else x)
+    data["Move"] = data["Move"].apply(lambda x: np.array(x, dtype=object) if isinstance(x, list) else x)
 
     return data
 
 def addPoidData(data, dataMouv, board):
-    # Serialize the board to a string for comparison
-    serialized_board = str(board)
+    dataPoid = {}
+    for mouv in dataMouv:
+        dataPoid[mouv] = 0
+        for i in range(len(data)):
+            #print(data.iloc[i, 1])
+            for j in range(data.iloc[i, 1].size//2):
+                #print(data.iloc[i, 1][j, 1], mouv, i, j, data.iloc[i, 1].size//2)
+                if data.iloc[i, 1][j, 1] == mouv:
+                    if data.iloc[i, 0][4] == data.iloc[i, 1][j, 0]:
+                        coef = 1
+                    else:
+                        coef = -1
+                    if j == 0:
+                        board2 = [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, (0, -1), (0, -1), (0, -1), 0], [0, 0, 0, 0, 0]]
+                    else:
+                        board2 = data.iloc[i, 2][j-1]
+                    dataPoid[mouv] += coef * (compareBoard(board, board2) + 1)
+    return dataPoid
+                    
 
-    # Ensure column 4 is treated as strings for comparison
-    data[4] = data[4].astype(str)
+def compareBoard(board1, board2):
+    """
+    Compare deux états de plateau (board1 et board2) pour vérifier à quel point les 2 board sont identiques.
+    """
 
-    # Find positions where the serialized board matches column 4
-    positions = data[data[4] == serialized_board].index.tolist()
+    board1 = np.array(board1, dtype=object)
+    board2 = np.array(board2, dtype=object)
 
-    # Print the positions found
-    print("Positions trouvées :", positions)
+    percent = 0
+    # Vérifier si les dimensions des tableaux sont identiques
+    if board1.shape != board2.shape:
+        return percent
+
+    # Comparer les éléments des deux tableaux
+    for i in range(board1.shape[0]):
+        for j in range(board1.shape[1]):
+            if board1[i, j] == board2[i, j]:
+                percent += 0.04
+            else:
+                percent -= 0.04
+
+    return percent
+
+def cles_max(d):
+    if not d:
+        return []  # Dictionnaire vide ➔ retourne une liste vide
+    max_val = max(d.values())  # Trouver la valeur maximale
+    return [k for k, v in d.items() if v == max_val]  # Toutes les clés avec la valeur max
