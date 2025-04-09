@@ -14,6 +14,7 @@ localization = {(-1, -1): [0, 0], (1, -1): [1, 0], (2, -1): [2, 0], (3, -1): [3,
 stopAction = True
 data, mouvData, gridData = [], [], []
 nbMouv = 0
+nbTurnRockDontMouv = 0
 font = pygame.font.Font(None, 50)
 
 def logicalGame(fenetre, board, event, ia = False, ia_vs_ia = False):
@@ -27,6 +28,8 @@ def logicalGame(fenetre, board, event, ia = False, ia_vs_ia = False):
     global stopAction
     global data, mouvData, gridData
     global nbMouv
+    global nbTurnRockDontMouv
+    tempBoard = board.getBoard()
     # Dessiner le plateau
     if board.getWinner() == 0 and ((ia and board.getCurrentPlayerTurn()%2+1 == 1) or not ia) and not ia_vs_ia:
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -252,4 +255,10 @@ def logicalGame(fenetre, board, event, ia = False, ia_vs_ia = False):
     fenetre.blit(texte2, (300, 500))
     if nbMouv > 990:
         board.tie()
-    
+    print(nbTurnRockDontMouv)
+    if compareBoardRock(tempBoard, board.getBoard()):
+        nbTurnRockDontMouv += 1
+    else:
+        nbTurnRockDontMouv = 0
+    if nbTurnRockDontMouv >= 10:
+        board.tie()

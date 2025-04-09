@@ -124,6 +124,24 @@ def compareBoard(board1, board2):
 
     return percent
 
+def compareBoardRock(board1, board2):
+    """
+    Compare si les cellules contenant (0, -1) sont à la même position sur les deux boards.
+    """
+    board1 = np.array(board1, dtype=object)
+    board2 = np.array(board2, dtype=object)
+
+    # Vérifier si les dimensions des tableaux sont identiques
+    if board1.shape != board2.shape:
+        return False
+
+    # Parcourir les tableaux pour trouver les positions de (0, -1)
+    positions_board1 = [(i, j) for i in range(board1.shape[0]) for j in range(board1.shape[1]) if board1[i, j] == (0, -1)]
+    positions_board2 = [(i, j) for i in range(board2.shape[0]) for j in range(board2.shape[1]) if board2[i, j] == (0, -1)]
+
+    # Comparer les positions
+    return positions_board1 == positions_board2
+
 def cles_max(d):
     if not d:
         return []  # Dictionnaire vide ➔ retourne une liste vide
