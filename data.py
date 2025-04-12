@@ -2,6 +2,7 @@ import csv
 import numpy as np
 import ast
 import pandas as pd
+import math
 
 def saveData(data):
     """
@@ -80,25 +81,40 @@ def loadData(filepath: str):
 
     return data
 
-def addPoidData(data, dataMouv, board):
+import random
+
+def addPoidData(data, dataMouv, board, joueur):
     dataPoid = {}
     for mouv in dataMouv:
         dataPoid[mouv] = 0
         for i in range(len(data)):
-            #print(data.iloc[i, 1])
-            for j in range(data.iloc[i, 1].size//2):
-                #print(data.iloc[i, 1][j, 1], mouv, i, j, data.iloc[i, 1].size//2)
+            for j in range(data.iloc[i, 1].size // 2):
                 if data.iloc[i, 1][j, 1] == mouv:
-                    if data.iloc[i, 0][4] == data.iloc[i, 1][j, 0]:
+                    if data.iloc[i, 0][4] == data.iloc[i, 1][j, 0] == joueur:
                         coef = 1
                     else:
                         coef = -1
                     if j == 0:
-                        board2 = [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, (0, -1), (0, -1), (0, -1), 0], [0, 0, 0, 0, 0]]
+                        board2 = [[0, 0, 0, 0, 0], 
+                                  [0, 0, 0, 0, 0], 
+                                  [0, (0, -1), (0, -1), (0, -1), 0], 
+                                  [0, 0, 0, 0, 0],
+                                  [0, 0, 0, 0, 0]]
                     else:
                         board2 = data.iloc[i, 2][j-1]
-                    dataPoid[mouv] += coef * (compareBoard(board, board2) + 1)
+                    if data.iloc[i, 0][4] == 1 or data.iloc[i, 0][4] == 2:
+                        dataPoid[mouv] += coef * (compareBoard(board, board2) + 1)
+                    elif not compareBoardRock(data.iloc[i, 2][j], board2):
+                        dataPoid[mouv] += len(data.iloc[i, 1]) / 1000
+
+    # ➔ AJOUT ICI : un tout petit bruit aléatoire
+    for mouv in dataPoid:
+        bruit = random.uniform(-0.01, 0.01)   # un bruit très léger
+        dataPoid[mouv] += bruit
+
     return dataPoid
+
+
                     
 
 def compareBoard(board1, board2):
@@ -147,3 +163,8 @@ def cles_max(d):
         return []  # Dictionnaire vide ➔ retourne une liste vide
     max_val = max(d.values())  # Trouver la valeur maximale
     return [k for k, v in d.items() if v == max_val]  # Toutes les clés avec la valeur max
+
+def softmax(d, temperature=1.0):
+    exp_weights = {k: math.exp(v / temperature) for k, v in d.items()}
+    total = sum(exp_weights.values())
+    return {k: v / total for k, v in exp_weights.items()}

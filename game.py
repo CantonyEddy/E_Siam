@@ -2,6 +2,7 @@ import pygame
 import math
 import random
 from data import *
+from board import *
 
 pygame.font.init()  # Initialize the font module
 
@@ -30,6 +31,7 @@ def logicalGame(fenetre, board, event, ia = False, ia_vs_ia = False):
     global nbMouv
     global nbTurnRockDontMouv
     tempBoard = board.getBoard()
+    tempNbMouv = nbMouv
     # Dessiner le plateau
     if board.getWinner() == 0 and ((ia and board.getCurrentPlayerTurn()%2+1 == 1) or not ia) and not ia_vs_ia:
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -155,11 +157,19 @@ def logicalGame(fenetre, board, event, ia = False, ia_vs_ia = False):
     elif board.getWinner() == 0 and ((ia and board.getCurrentPlayerTurn()%2+1 == 2) or ia_vs_ia):
         mouv = board.listMoves(board.getCurrentPlayerTurn()%2+1)
         if len(mouv) > 0:
-            d = addPoidData(loadData("data.csv"), mouv, board.getBoard())
-            #print(d)
-            maxCle = cles_max(d)
-            print(nbMouv, maxCle)
-            mouvement = random.choice(maxCle)
+            d = addPoidData(loadData("data.csv"), mouv, board.getBoard(), board.getCurrentPlayerTurn()%2+1)
+            d = softmax(d, temperature=1.5)  # ➔ température = 1.5 pour plus de variété
+
+            total_weight = sum(d.values())
+            weighted_choices = [(key, weight / total_weight) for key, weight in d.items()]
+            random_value = random.uniform(0, 1)
+            cumulative_probability = 0
+            for key, probability in weighted_choices:
+                cumulative_probability += probability
+                if random_value <= cumulative_probability:
+                    mouvement = key
+                    break
+
             if mouvement[0] == "e":
                 board.enterPiece(board.getCurrentPlayerTurn()%2+1, mouvement[2], mouvement[1], mouvement[3])
                 mouvData.append((board.getCurrentPlayerTurn()%2+1, mouvement))
@@ -254,11 +264,27 @@ def logicalGame(fenetre, board, event, ia = False, ia_vs_ia = False):
     fenetre.blit(texte, (300, 50))
     fenetre.blit(texte2, (300, 500))
     if nbMouv > 990:
+        print("Trop de mouvements")
         board.tie()
     print(nbTurnRockDontMouv)
-    if compareBoardRock(tempBoard, board.getBoard()):
+    if compareBoardRock(tempBoard, board.getBoard()) and tempNbMouv != nbMouv:
         nbTurnRockDontMouv += 1
     else:
         nbTurnRockDontMouv = 0
-    if nbTurnRockDontMouv >= 10:
+    if nbTurnRockDontMouv >= 20:
+        print("Trop de mouvements rock")
         board.tie()
+    if event.type == pygame.MOUSEBUTTONDOWN:
+            x, y = (event.pos[0]-275)//50, (event.pos[1]-150)//50
+            if x == 10 or y == -3:
+                board.__init__()
+                stopAction = True
+                nbTurnRockDontMouv = 0
+                nbMouv = 0
+                data, mouvData, gridData = [], [], []
+    if ia_vs_ia and board.getWinner() != 0 and not stopAction:
+        board.__init__()
+        stopAction = True
+        nbTurnRockDontMouv = 0
+        nbMouv = 0
+        data, mouvData, gridData = [], [], []
