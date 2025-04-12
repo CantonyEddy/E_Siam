@@ -3,6 +3,7 @@ import numpy as np
 import ast
 import pandas as pd
 import math
+import random
 
 def saveData(data):
     """
@@ -81,7 +82,6 @@ def loadData(filepath: str):
 
     return data
 
-import random
 
 def addPoidData(data, dataMouv, board, joueur):
     dataPoid = {}

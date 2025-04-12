@@ -17,6 +17,12 @@ data, mouvData, gridData = [], [], []
 nbMouv = 0
 nbTurnRockDontMouv = 0
 font = pygame.font.Font(None, 50)
+data_loaded = loadData("data.csv")
+# Variables pour l'exploration contrôlée
+epsilon = 0.2  # Au début 20% du temps, l'IA joue un coup totalement au hasard
+epsilon_decay = 0.995  # Diminution progressive
+epsilon_min = 0.05     # Ne pas descendre en dessous de 5%
+games_played = data_loaded.__len__()       # Compteur de parties jouées
 
 def logicalGame(fenetre, board, event, ia = False, ia_vs_ia = False):
     global direction
@@ -30,6 +36,12 @@ def logicalGame(fenetre, board, event, ia = False, ia_vs_ia = False):
     global data, mouvData, gridData
     global nbMouv
     global nbTurnRockDontMouv
+    global data_loaded
+    #print(data_loaded.__len__())
+    global games_played
+    global epsilon
+    global epsilon_decay
+    global epsilon_min
     tempBoard = board.getBoard()
     tempNbMouv = nbMouv
     # Dessiner le plateau
@@ -156,19 +168,25 @@ def logicalGame(fenetre, board, event, ia = False, ia_vs_ia = False):
             #print(board.listMoves(board.getCurrentPlayerTurn()%2+1))
     elif board.getWinner() == 0 and ((ia and board.getCurrentPlayerTurn()%2+1 == 2) or ia_vs_ia):
         mouv = board.listMoves(board.getCurrentPlayerTurn()%2+1)
+        if isinstance(mouv, dict):
+            mouv = list(mouv.keys())  # Convert dictionary keys to a list
         if len(mouv) > 0:
-            d = addPoidData(loadData("data.csv"), mouv, board.getBoard(), board.getCurrentPlayerTurn()%2+1)
-            d = softmax(d, temperature=1.5)  # ➔ température = 1.5 pour plus de variété
+            d = addPoidData(data_loaded, mouv, board.getBoard(), board.getCurrentPlayerTurn()%2+1)
+            d = softmax(d, temperature=1.5)
 
-            total_weight = sum(d.values())
-            weighted_choices = [(key, weight / total_weight) for key, weight in d.items()]
-            random_value = random.uniform(0, 1)
-            cumulative_probability = 0
-            for key, probability in weighted_choices:
-                cumulative_probability += probability
-                if random_value <= cumulative_probability:
-                    mouvement = key
-                    break
+            # Choix du mouvement avec exploration contrôlée
+            if random.random() < epsilon:
+                mouvement = random.choice(mouv)  # ➔ Coup totalement aléatoire (exploration)
+            else:
+                total_weight = sum(d.values())
+                weighted_choices = [(key, weight / total_weight) for key, weight in d.items()]
+                random_value = random.uniform(0, 1)
+                cumulative_probability = 0
+                for key, probability in weighted_choices:
+                    cumulative_probability += probability
+                    if random_value <= cumulative_probability:
+                        mouvement = key
+                        break
 
             if mouvement[0] == "e":
                 board.enterPiece(board.getCurrentPlayerTurn()%2+1, mouvement[2], mouvement[1], mouvement[3])
@@ -191,6 +209,8 @@ def logicalGame(fenetre, board, event, ia = False, ia_vs_ia = False):
                 gridData.append(board.getBoard())
                 nbMouv += 1
             board.nextPlayerTurn()
+        else:
+            print("No valid moves available.")
     elif board.getWinner() == 1:
         texte = font.render("Player 1 wins", True, (255, 255, 255))
         fenetre.blit(texte, (300, 300))
@@ -208,8 +228,11 @@ def logicalGame(fenetre, board, event, ia = False, ia_vs_ia = False):
             data.append(gridData)
             saveData(data)
             stopAction = False
-            data_pure = loadData("data.csv")
+            data_pure = data_loaded
             print(data_pure)
+            games_played += 1
+            epsilon = max(epsilon_min, epsilon * epsilon_decay)
+            print(f"Epsilon mis à jour : {epsilon:.4f} après {games_played} parties")
 
     elif board.getWinner() == 2:
         texte = font.render("Player 2 wins", True, (255, 255, 255))
@@ -228,8 +251,11 @@ def logicalGame(fenetre, board, event, ia = False, ia_vs_ia = False):
             data.append(gridData)
             saveData(data)
             stopAction = False
-            data_pure = loadData("data.csv")
+            data_pure = data_loaded
             print(data_pure)
+            games_played += 1
+            epsilon = max(epsilon_min, epsilon * epsilon_decay)
+            print(f"Epsilon mis à jour : {epsilon:.4f} après {games_played} parties")
     elif board.getWinner() == 3:
         texte = font.render("Tie", True, (255, 255, 255))
         fenetre.blit(texte, (300, 300))
@@ -247,8 +273,11 @@ def logicalGame(fenetre, board, event, ia = False, ia_vs_ia = False):
             data.append(gridData)
             saveData(data)
             stopAction = False
-            data_pure = loadData("data.csv")
+            data_pure = data_loaded
             print(data_pure)
+            games_played += 1
+            epsilon = max(epsilon_min, epsilon * epsilon_decay)
+            print(f"Epsilon mis à jour : {epsilon:.4f} après {games_played} parties")
     board.draw(fenetre)
     board.preplacePiecesCenterRotate(x, y, fenetre, directionBis)
     texte = font.render(str(board.getLenPlayers(1)) + " X", True, (255, 255, 255))
@@ -282,9 +311,11 @@ def logicalGame(fenetre, board, event, ia = False, ia_vs_ia = False):
                 nbTurnRockDontMouv = 0
                 nbMouv = 0
                 data, mouvData, gridData = [], [], []
+                data_loaded = loadData("data.csv")
     if ia_vs_ia and board.getWinner() != 0 and not stopAction:
         board.__init__()
         stopAction = True
         nbTurnRockDontMouv = 0
         nbMouv = 0
         data, mouvData, gridData = [], [], []
+        data_loaded = loadData("data.csv")
