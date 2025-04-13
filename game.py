@@ -22,7 +22,8 @@ data_loaded = loadData("data.csv")
 epsilon = 0.2  # Au début 20% du temps, l'IA joue un coup totalement au hasard
 epsilon_decay = 0.995  # Diminution progressive
 epsilon_min = 0.05     # Ne pas descendre en dessous de 5%
-games_played = data_loaded.__len__()       # Compteur de parties jouées
+games_played = get_number_of_lines("data.csv")//2       # Compteur de parties jouées
+dataWin = get_fifth_column("data.csv")[1:] # Liste des résultats de chaque partie
 
 def logicalGame(fenetre, board, event, ia = False, ia_vs_ia = False):
     global direction
@@ -42,6 +43,7 @@ def logicalGame(fenetre, board, event, ia = False, ia_vs_ia = False):
     global epsilon
     global epsilon_decay
     global epsilon_min
+    global dataWin
     tempBoard = board.getBoard()
     tempNbMouv = nbMouv
     # Dessiner le plateau
@@ -228,8 +230,8 @@ def logicalGame(fenetre, board, event, ia = False, ia_vs_ia = False):
             data.append(gridData)
             saveData(data)
             stopAction = False
-            data_pure = data_loaded
-            print(data_pure)
+            #data_pure = data_loaded
+            #print(data_pure)
             games_played += 1
             epsilon = max(epsilon_min, epsilon * epsilon_decay)
             print(f"Epsilon mis à jour : {epsilon:.4f} après {games_played} parties")
@@ -251,8 +253,8 @@ def logicalGame(fenetre, board, event, ia = False, ia_vs_ia = False):
             data.append(gridData)
             saveData(data)
             stopAction = False
-            data_pure = data_loaded
-            print(data_pure)
+            #data_pure = data_loaded
+            #print(data_pure)
             games_played += 1
             epsilon = max(epsilon_min, epsilon * epsilon_decay)
             print(f"Epsilon mis à jour : {epsilon:.4f} après {games_played} parties")
@@ -273,8 +275,10 @@ def logicalGame(fenetre, board, event, ia = False, ia_vs_ia = False):
             data.append(gridData)
             saveData(data)
             stopAction = False
-            data_pure = data_loaded
-            print(data_pure)
+            #data_pure = data_loaded
+            #print(data_pure)
+            #lst = get_fifth_column("data.csv")[1:]
+            #print(lst,lst.count(1),lst.count(2), lst.count(3))
             games_played += 1
             epsilon = max(epsilon_min, epsilon * epsilon_decay)
             print(f"Epsilon mis à jour : {epsilon:.4f} après {games_played} parties")
@@ -282,6 +286,7 @@ def logicalGame(fenetre, board, event, ia = False, ia_vs_ia = False):
     board.preplacePiecesCenterRotate(x, y, fenetre, directionBis)
     texte = font.render(str(board.getLenPlayers(1)) + " X", True, (255, 255, 255))
     texte2 = font.render(str(board.getLenPlayers(2)) + " X", True, (255, 255, 255))
+    texte3 = font.render("J1 : " + str(dataWin.count(1)//2) + " J2 : " + str(dataWin.count(2)//2) + " TIE : " + str(dataWin.count(3)//2), True, (0, 255, 255))
     image_rino = 'Rino.png'
     image_eleph = 'Eleph.png'
     rino_image = pygame.image.load(image_rino)
@@ -292,6 +297,7 @@ def logicalGame(fenetre, board, event, ia = False, ia_vs_ia = False):
     fenetre.blit(eleph_image, (350, 500))
     fenetre.blit(texte, (300, 50))
     fenetre.blit(texte2, (300, 500))
+    fenetre.blit(texte3, (10, 10))
     if nbMouv > 990:
         print("Trop de mouvements")
         board.tie()
@@ -300,7 +306,7 @@ def logicalGame(fenetre, board, event, ia = False, ia_vs_ia = False):
         nbTurnRockDontMouv += 1
     else:
         nbTurnRockDontMouv = 0
-    if nbTurnRockDontMouv >= 20:
+    if nbTurnRockDontMouv >= 40:
         print("Trop de mouvements rock")
         board.tie()
     if event.type == pygame.MOUSEBUTTONDOWN:
@@ -312,6 +318,7 @@ def logicalGame(fenetre, board, event, ia = False, ia_vs_ia = False):
                 nbMouv = 0
                 data, mouvData, gridData = [], [], []
                 data_loaded = loadData("data.csv")
+                dataWin = get_fifth_column("data.csv")[1:]
     if ia_vs_ia and board.getWinner() != 0 and not stopAction:
         board.__init__()
         stopAction = True
@@ -319,3 +326,4 @@ def logicalGame(fenetre, board, event, ia = False, ia_vs_ia = False):
         nbMouv = 0
         data, mouvData, gridData = [], [], []
         data_loaded = loadData("data.csv")
+        dataWin = get_fifth_column("data.csv")[1:]
