@@ -5,7 +5,7 @@ import pandas as pd
 import math
 import random
 
-OPOSITE = np.array([2, 3, 0, 1])
+OPOSITE = np.array([-1, 1, 1, -1])
 
 def saveData(data):
     """
@@ -82,47 +82,34 @@ def addPoidData(index, dataMouv, board, joueur):
     dataPoid = {mouv: 0 for mouv in dataMouv}
 
     for mouv in dataMouv:
-        #print((joueur, (mouv)) in index)
         if (joueur, (mouv)) in index:
-            #print("Mouvement trouvé !", index[(joueur, (mouv))])
             for info_line, board2 in index[(joueur, (mouv))]:
-                '''print("info_line : ", info_line)
-                print("board2 : ", board2)
-                print("board : ", board)
-                print(mouv)'''
                 if info_line[4] == joueur:
                     coef = 1
                 else:
                     coef = -1
-                #print("oui", board, board2)
 
-                # Score normal basé sur la comparaison de board
-                score = coef * compareBoard(board, board2) + 1
+                # Score classique
+                dataPoid[mouv] += coef * (compareBoard(board, board2) + 1)
 
-                # Détecter si un rocher a bougé ou a été expulsé
-                #print(board[mouv[1] + OPOSITE[mouv[3]] if (mouv[3] == 0 or mouv[3] == 2) and 0 <= mouv[1] + OPOSITE[mouv[3]] < 5 else mouv[1]][mouv[2] + OPOSITE[mouv[3]] if (mouv[3] == 1 or mouv[3] == 3) and 0 <= mouv[2] + OPOSITE[mouv[3]] < 5 else mouv[2]] if mouv[0] == "m" else "no")
-                if mouv[0] == "m" and board[mouv[1] + OPOSITE[mouv[3]] if (mouv[3] == 0 or mouv[3] == 2) and 0 <= mouv[1] + OPOSITE[mouv[3]] < 5 else mouv[1]][mouv[2] + OPOSITE[mouv[3]] if (mouv[3] == 1 or mouv[3] == 3) and 0 <= mouv[2] + OPOSITE[mouv[3]] < 5 else mouv[2]] == (0, -1):
-                    print("Un rocher a bougé !")
-                    print("info_line : ", info_line)
-                    print("board2 : ", board2)
-                    print("board : ", board)
-                    print(mouv)
-                    # Un rocher a bougé
-                    score += 10  # Bonus important
-                if detectRockExpulsion(board2):
-                    #print("Un rocher a été expulsé !")
-                    # Un rocher est sorti du plateau
-                    score += 100  # Très gros bonus
+        # ➔ En plus : Simuler le coup et détecter son effet
+        board_after = simulateMove(board, mouv)
 
-                dataPoid[mouv] += score
+        # Vérifier si le mouvement VA déplacer un rocher
+        if not compareBoardRock(board, board_after):
+            dataPoid[mouv] += 10  # Bonus pour pousser un rocher
 
-    # Ajout de bruit léger pour varier
+        # Vérifier si le mouvement VA sortir un rocher
+        if detectRockExpulsion(board_after):
+            dataPoid[mouv] += 100  # GROS bonus pour sortir un rocher
+
+    # Bruit aléatoire
     for mouv in dataPoid:
         bruit = random.uniform(-0.01, 0.01)
         dataPoid[mouv] += bruit
-
     #print("dataPoid : ", dataPoid)
     return dataPoid
+
 
 def compareBoard(board1, board2):
     """
@@ -172,7 +159,12 @@ def cles_max(d):
     return [k for k, v in d.items() if v == max_val]  # Toutes les clés avec la valeur max
 
 def softmax(d, temperature=1.0):
-    exp_weights = {k: math.exp(v / temperature) for k, v in d.items()}
+    """
+    Compute the softmax of a dictionary `d` with numerical stabilization.
+    """
+    # Subtract the maximum value for numerical stability
+    max_value = max(d.values())
+    exp_weights = {k: math.exp((v - max_value) / temperature) for k, v in d.items()}
     total = sum(exp_weights.values())
     return {k: v / total for k, v in exp_weights.items()}
 
@@ -192,3 +184,40 @@ def detectRockExpulsion(board):
             if board[i][j] == (0, -1):
                 nb_rock += 1
     return nb_rock < 3  # Normalement il y a 3 rochers au début "Normalement 🤷‍♂️"
+
+def simulateMove(board, mouvement):
+    """
+    Simulate a move on the board without modifying the original board.
+    """
+    import copy
+    board_copy = copy.deepcopy(board)
+
+    # Validate the format of mouvement
+    if len(mouvement) != 4:
+        print(f"Invalid mouvement format: {mouvement}")
+        return board_copy  # Return the original board if the move is invalid
+
+    # Unpack mouvement
+    type_mvt, x, y, direction = mouvement
+
+    # Simulate the move
+    if type_mvt == "m":
+        # Example movement logic (to be adapted to your game's rules)
+        if direction == 0:  # Up
+            new_x, new_y = x, y - 1
+        elif direction == 1:  # Right
+            new_x, new_y = x + 1, y
+        elif direction == 2:  # Down
+            new_x, new_y = x, y + 1
+        elif direction == 3:  # Left
+            new_x, new_y = x - 1, y
+        else:
+            print(f"Invalid direction: {direction}")
+            return board_copy
+
+        # Check if the new position is within bounds
+        if 0 <= new_x < 5 and 0 <= new_y < 5:
+            board_copy[new_y][new_x] = board_copy[y][x]
+            board_copy[y][x] = 0  # Clear the old position
+
+    return board_copy
