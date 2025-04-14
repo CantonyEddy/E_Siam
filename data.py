@@ -172,7 +172,12 @@ def cles_max(d):
     return [k for k, v in d.items() if v == max_val]  # Toutes les clés avec la valeur max
 
 def softmax(d, temperature=1.0):
-    exp_weights = {k: math.exp(v / temperature) for k, v in d.items()}
+    """
+    Compute the softmax of a dictionary `d` with numerical stabilization.
+    """
+    # Subtract the maximum value for numerical stability
+    max_value = max(d.values())
+    exp_weights = {k: math.exp((v - max_value) / temperature) for k, v in d.items()}
     total = sum(exp_weights.values())
     return {k: v / total for k, v in exp_weights.items()}
 
