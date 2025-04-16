@@ -104,29 +104,42 @@ def generer_graphe_stats(stats):
     values_nul.append((nuls / total) * 100 if total else 0)
 
     x = np.arange(len(categories))
-    width = 0.2  # largeur réduite pour les 3 barres côte à côte
+    width = 0.2  # 3 barres par groupe
 
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(7, 5))
     ax.bar(x - width, values_a, width, label='Camp A', color='blue')
     ax.bar(x, values_nul, width, label='Match nul', color='gold')
     ax.bar(x + width, values_b, width, label='Camp B', color='red')
 
     ax.set_ylabel('Winrate (%)')
-    ax.set_title('Winrate par camp et matchs nuls')
     ax.set_xticks(x)
     ax.set_xticklabels(categories)
-    ax.set_ylim(0, 100)
+    ax.set_ylim(0, 110)
     ax.legend()
 
-    # Affichage des valeurs au-dessus des barres
+    # Titre manuel bien plus haut
+    fig.suptitle('Winrate par camp et matchs nuls', fontsize=14, y=0.97)
+
+    # Affichage des pourcentages bien espacés et des totaux
     for i in range(len(x)):
-        ax.text(x[i] - width, values_a[i] + 1, f"{values_a[i]:.1f}%", ha='center')
-        ax.text(x[i], values_nul[i] + 1, f"{values_nul[i]:.1f}%", ha='center')
-        ax.text(x[i] + width, values_b[i] + 1, f"{values_b[i]:.1f}%", ha='center')
+        ax.text(x[i] - width, values_a[i] + 2, f"{values_a[i]:.1f}%", ha='center', fontsize=9)
+        ax.text(x[i], values_nul[i] + 2, f"{values_nul[i]:.1f}%", ha='center', fontsize=9)
+        ax.text(x[i] + width, values_b[i] + 2, f"{values_b[i]:.1f}%", ha='center', fontsize=9)
+
+        if i == 0:
+            total = stats["pvp"]["total"]
+        elif i == 1:
+            total = stats["pvai"]["total"]
+        else:
+            total = stats["aivai"]["total"]
+
+        max_val = max(values_a[i], values_b[i], values_nul[i])
+        ax.text(x[i], max_val + 10, f"Total : {total} parties", ha='center', fontsize=9, color='gray')
 
     buf = io.BytesIO()
-    plt.tight_layout()
+    plt.tight_layout(pad=3.0)
     plt.savefig(buf, format='PNG')
+    plt.close(fig)
     buf.seek(0)
     return pygame.image.load(buf)
 
