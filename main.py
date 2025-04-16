@@ -2,10 +2,10 @@ import pygame
 from time import sleep
 from board import Board
 from game import logicalGame
-from stats import analyser_data_csv
+from stats import analyser_data_csv, generer_graphe_stats
+from stats_from_data import get_stats_from_data
 from evolution_ia_graph import generer_courbe_evolution_ia
 from evolution_pvia_graph import generer_courbe_evolution_pvai
-from stats import analyser_data_csv
 
 # Initialisation coucou
 pygame.init()
@@ -72,7 +72,10 @@ while running:
     # === Vue STATS (barres générales) ===
     elif vue_active == "stats":
         pygame.draw.rect(fenetre, blanc, (0, 0, largeur, hauteur))
-        analyser_data_csv(fenetre)
+        stats = analyser_data_csv("data.csv")
+        graphe = generer_graphe_stats(stats)
+        fenetre.fill(gris)
+        fenetre.blit(graphe, ((largeur - graphe.get_width()) // 2, 50))
 
         # Boutons graphiques avancés
         pygame.draw.rect(fenetre, bleu, bouton_evo_ia)
@@ -86,7 +89,7 @@ while running:
 
     # === Vue EVOLUTION IA vs IA ===
     elif vue_active == "evo_ia":
-        stats = analyser_data_csv()
+        stats = analyser_data_csv("data.csv")
         graphe = generer_courbe_evolution_ia(stats)
         fenetre.fill(gris)
         fenetre.blit(graphe, ((largeur - graphe.get_width()) // 2, 50))
@@ -96,7 +99,7 @@ while running:
 
     # === Vue EVOLUTION PvAI ===
     elif vue_active == "evo_pvai":
-        stats = analyser_data_csv()
+        stats = analyser_data_csv("data.csv")
         graphe = generer_courbe_evolution_pvai(stats)
         fenetre.fill(gris)
         fenetre.blit(graphe, ((largeur - graphe.get_width()) // 2, 50))

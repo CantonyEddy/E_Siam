@@ -327,3 +327,7 @@ def logicalGame(fenetre, board, event, ia = False, ia_vs_ia = False):
         data, mouvData, gridData = [], [], []
         data_loaded = loadData("data.csv")
         dataWin = get_fifth_column("data.csv")[1:]
+
+# Vérifiez si analyser_data_csv est appelée ici
+# Exemple :
+# stats = analyser_data_csv("data.csv")

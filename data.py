@@ -81,7 +81,7 @@ def loadData(filepath: str):
 
 def addPoidData(index, dataMouv, board, joueur):
     dataPoid = {mouv: 0 for mouv in dataMouv}
-    decay_base = 1.00  # ↘️ Plus grand = les anciennes données comptent moins
+    decay_base = 1.03  # ↘️ Plus grand = les anciennes données comptent moins
 
     for mouv in dataMouv:
         if (joueur, (mouv)) in index:

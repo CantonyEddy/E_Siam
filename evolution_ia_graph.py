@@ -8,7 +8,7 @@ def generer_courbe_evolution_ia(stats):
     resultats = stats.get("aivai_resultats", [])  # liste de 1, 2 ou 3
 
     # Garder uniquement les 100 derniers matchs
-    resultats = resultats[-100:]
+    resultats = resultats[-10000:]
 
     ia1_score = 0
     ia2_score = 0
@@ -19,10 +19,8 @@ def generer_courbe_evolution_ia(stats):
     for i, gagnant in enumerate(resultats):
         if gagnant == 1:
             ia1_score += 1
-            ia2_score -= 1
         elif gagnant == 2:
             ia2_score += 1
-            ia1_score -= 1
         # égalité : score inchangé
 
         matchs.append(i + 1)

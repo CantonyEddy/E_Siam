@@ -4,12 +4,13 @@ import io
 import pygame
 
 def generer_courbe_evolution_pvai(stats):
+    #print(stats)
 
     resultats = stats.get("pvai_resultats", [])
     camps = stats.get("pvai_camp", [])
 
     # Sécurité : synchroniser, ignorer égalités, limiter aux 100 dernières
-    filtered = [(r, c) for r, c in zip(resultats, camps) if r in [1, 2]][-100:]
+    filtered = resultats[-10000:]
 
     joueur_score = 0
     ia_score = 0
@@ -17,19 +18,11 @@ def generer_courbe_evolution_pvai(stats):
     score_joueur = []
     score_ia = []
 
-    for i, (gagnant, camp) in enumerate(filtered):
-        if gagnant == 1 and camp == "joueur":
+    for i, gagnant in enumerate(filtered):
+        if gagnant == 1 and camps[i] == "player":
             joueur_score += 1
-            ia_score -= 1
-        elif gagnant == 2 and camp == "joueur":
-            joueur_score -= 1
+        elif gagnant == 2 and camps[i] == "ia":
             ia_score += 1
-        elif gagnant == 1 and camp == "ia":
-            ia_score += 1
-            joueur_score -= 1
-        elif gagnant == 2 and camp == "ia":
-            ia_score -= 1
-            joueur_score += 1
 
         matchs.append(i + 1)
         score_joueur.append(joueur_score)
@@ -52,4 +45,5 @@ def generer_courbe_evolution_pvai(stats):
     plt.savefig(buf, format='PNG')
     plt.close(fig)
     buf.seek(0)
+    #print(filtered)
     return pygame.image.load(buf)

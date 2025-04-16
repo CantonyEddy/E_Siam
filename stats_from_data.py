@@ -22,7 +22,7 @@ def get_stats_from_data(file_path="data.csv"):
             stats["defaites"] = resultats.count(-1)
 
             if stats["parties_jouees"] > 0:
-                stats["taux_victoire"] = round((stats["victoires"] / stats["parties_jouees"]) * 100, 2)
+                stats["taux_victoire"] = round((stats["victoires"] / stats["parties_jouees"]) * 10000, 2)
 
     except FileNotFoundError:
         print("[Erreur] Le fichier data.csv est introuvable.")
