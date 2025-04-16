@@ -7,7 +7,7 @@ from evolution_ia_graph import generer_courbe_evolution_ia
 from evolution_pvia_graph import generer_courbe_evolution_pvai
 from stats import analyser_data_csv
 
-# Initialisation
+# Initialisation coucou
 pygame.init()
 
 # Dimensions
