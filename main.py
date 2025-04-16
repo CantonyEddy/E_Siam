@@ -62,7 +62,7 @@ while running:
 
     # === Vue JEU ===
     if vue_active == "jeu":
-        logicalGame(fenetre, board, event, True, False)
+        logicalGame(fenetre, board, event, True, True)
 
         # Bouton "Stats"
         pygame.draw.rect(fenetre, bleu, bouton_stats)
