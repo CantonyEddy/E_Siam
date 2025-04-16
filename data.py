@@ -61,54 +61,55 @@ def loadData(filepath: str):
             state_clean = [ast.literal_eval(item) if isinstance(item, str) and item.startswith("[") and item.endswith("]") else item for item in move_line.dropna().tolist()]
             info_line_clean = info_line.dropna().tolist()
             
-            # ➔ Ajouter les mouvements dans l'index
             for j, mouv in enumerate(move_clean):
                 if j == 0:
                     board2 = [[0, 0, 0, 0, 0], 
-                              [0, 0, 0, 0, 0], 
-                              [0, (0, -1), (0, -1), (0, -1), 0], 
-                              [0, 0, 0, 0, 0],
-                              [0, 0, 0, 0, 0]]
+                            [0, 0, 0, 0, 0], 
+                            [0, (0, -1), (0, -1), (0, -1), 0], 
+                            [0, 0, 0, 0, 0],
+                            [0, 0, 0, 0, 0]]
                 else:
                     board2 = state_clean[j-1]
-                index[mouv].append((info_line_clean, board2))
+
+                index[mouv].append((info_line_clean, board2, i))  # ← Ajout de l'indice "age"
 
         except (SyntaxError, ValueError, TypeError) as e:
             print(f"Skipping invalid row at index {i}: {e}")
+
 
     return index
 
 def addPoidData(index, dataMouv, board, joueur):
     dataPoid = {mouv: 0 for mouv in dataMouv}
+    decay_base = 1.00  # ↘️ Plus grand = les anciennes données comptent moins
 
     for mouv in dataMouv:
         if (joueur, (mouv)) in index:
-            for info_line, board2 in index[(joueur, (mouv))]:
+            for info_line, board2, age in index[(joueur, (mouv))]:
                 if info_line[4] == joueur:
                     coef = 1
                 else:
                     coef = -1
 
-                # Score classique
-                dataPoid[mouv] += coef * (compareBoard(board, board2) + 1)
+                # ➔ Pondération temporelle
+                weight = 1 / (decay_base ** age)
 
-        # ➔ En plus : Simuler le coup et détecter son effet
+                dataPoid[mouv] += coef * (compareBoard(board, board2) + 1) * weight
+
+        # ➔ En plus : simulation du mouvement pour bonus
         board_after = simulateMove(board, mouv)
-
-        # Vérifier si le mouvement VA déplacer un rocher
         if not compareBoardRock(board, board_after):
-            dataPoid[mouv] += 10  # Bonus pour pousser un rocher
-
-        # Vérifier si le mouvement VA sortir un rocher
+            dataPoid[mouv] += 10
         if detectRockExpulsion(board_after):
-            dataPoid[mouv] += 100  # GROS bonus pour sortir un rocher
+            dataPoid[mouv] += 100
 
-    # Bruit aléatoire
+    # ➔ Ajout de bruit léger
     for mouv in dataPoid:
         bruit = random.uniform(-0.01, 0.01)
         dataPoid[mouv] += bruit
-    #print("dataPoid : ", dataPoid)
+
     return dataPoid
+
 
 
 def compareBoard(board1, board2):
