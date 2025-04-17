@@ -28,5 +28,5 @@ def plot_action_heatmap_filled(moves):
     plt.title("Heatmap des mouvements 'm'")
     plt.xlabel("x")
     plt.ylabel("y")
-    plt.gca()
+    plt.gca().invert_yaxis()
     plt.show()

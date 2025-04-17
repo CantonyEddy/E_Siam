@@ -24,6 +24,7 @@ epsilon_decay = 0.995  # Diminution progressive
 epsilon_min = 0.05     # Ne pas descendre en dessous de 5%
 games_played = get_number_of_lines("data.csv")//2       # Compteur de parties jouées
 dataWin = get_fifth_column("data.csv")[1:] # Liste des résultats de chaque partie
+tempIaVsIa = True
 
 def logicalGame(fenetre, board, event, ia = False, ia_vs_ia = False):
     global direction
@@ -44,6 +45,7 @@ def logicalGame(fenetre, board, event, ia = False, ia_vs_ia = False):
     global epsilon_decay
     global epsilon_min
     global dataWin
+    global tempIaVsIa
     tempBoard = board.getBoard()
     tempNbMouv = nbMouv
     # Dessiner le plateau
@@ -319,7 +321,7 @@ def logicalGame(fenetre, board, event, ia = False, ia_vs_ia = False):
                 data, mouvData, gridData = [], [], []
                 data_loaded = loadData("data.csv")
                 dataWin = get_fifth_column("data.csv")[1:]
-    if ia_vs_ia and board.getWinner() != 0 and not stopAction:
+    if (ia_vs_ia and board.getWinner() != 0 and not stopAction) or tempIaVsIa != ia_vs_ia:
         board.__init__()
         stopAction = True
         nbTurnRockDontMouv = 0
@@ -327,6 +329,7 @@ def logicalGame(fenetre, board, event, ia = False, ia_vs_ia = False):
         data, mouvData, gridData = [], [], []
         data_loaded = loadData("data.csv")
         dataWin = get_fifth_column("data.csv")[1:]
+    tempIaVsIa = ia_vs_ia
 
 # Vérifiez si analyser_data_csv est appelée ici
 # Exemple :
