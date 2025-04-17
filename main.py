@@ -2,10 +2,11 @@ import pygame
 from time import sleep
 from board import Board
 from game import logicalGame
-from stats import analyser_data_csv, generer_graphe_stats
+from stats import analyser_data_csv, generer_graphe_stats, get_all_moves
 from stats_from_data import get_stats_from_data
 from evolution_ia_graph import generer_courbe_evolution_ia
 from evolution_pvia_graph import generer_courbe_evolution_pvai
+from coup_plus_joue import plot_action_heatmap_filled
 
 # Initialisation coucou
 pygame.init()
@@ -35,6 +36,7 @@ bouton_stats = pygame.Rect(850, 540, 120, 40)
 bouton_retour = pygame.Rect(850, 540, 120, 40)
 bouton_evo_ia = pygame.Rect(30, 540, 200, 40)
 bouton_evo_pvai = pygame.Rect(250, 540, 220, 40)
+bouton_evo_coup_joue = pygame.Rect(500, 540, 220, 40)
 
 # Boucle principale
 running = True
@@ -54,6 +56,8 @@ while running:
                     vue_active = "evo_ia"
                 elif bouton_evo_pvai.collidepoint(x, y):
                     vue_active = "evo_pvai"
+                elif bouton_evo_coup_joue.collidepoint(x, y):
+                    plot_action_heatmap_filled(get_all_moves("data.csv"))
             elif vue_active in ["evo_ia", "evo_pvai"] and bouton_retour.collidepoint(x, y):
                 vue_active = "stats"
 
@@ -83,6 +87,8 @@ while running:
 
         pygame.draw.rect(fenetre, bleu, bouton_evo_pvai)
         fenetre.blit(font.render("🟢 Joueur vs IA", True, blanc), (bouton_evo_pvai.x + 10, bouton_evo_pvai.y + 10))
+        pygame.draw.rect(fenetre, bleu, bouton_evo_coup_joue)
+        fenetre.blit(font.render("🟢 Coups les plus joué", True, blanc), (bouton_evo_coup_joue.x + 10, bouton_evo_coup_joue.y + 10))
 
         pygame.draw.rect(fenetre, bleu, bouton_retour)
         fenetre.blit(font.render("⬅ Retour", True, blanc), (bouton_retour.x + 10, bouton_retour.y + 10))

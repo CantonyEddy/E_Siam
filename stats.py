@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import pygame
 import io
 import os
+import ast
 
 # --- Lecture de data.csv et analyse statistique ---
 def analyser_data_csv(file_path="data.csv"):
@@ -179,3 +180,31 @@ def generer_graphe_stats(stats):
     plt.close(fig)
     buf.seek(0)
     return pygame.image.load(buf)
+
+def get_all_moves(file_path="data.csv"):
+    """
+    Récupère et renvoie une liste de tous les coups joués dans le fichier data.csv.
+    """
+    all_moves = []
+    try:
+        with open(file_path, mode='r', newline='') as file:
+            reader = csv.reader(file)
+            data = list(reader)
+
+            # Parcours des lignes correspondant aux mouvements
+            for i in range(1, len(data), 2):  # Les mouvements sont sur les lignes impaires (1, 3, 5, ...)
+                if len(data[i]) > 5:  # Vérifie qu'il y a des mouvements
+                    moves = data[i][5:]  # Les mouvements commencent à la 6ème colonne
+                    for move in moves:
+                        if move:  # Ignore les cellules vides
+                            try:
+                                all_moves.append(ast.literal_eval(move))  # Convertit les mouvements en tuples/lists
+                            except (ValueError, SyntaxError):
+                                print(f"[Erreur] Mouvement invalide ignoré : {move}")
+
+    except FileNotFoundError:
+        print(f"[Erreur] Le fichier {file_path} est introuvable.")
+    except Exception as e:
+        print(f"[Erreur] Une erreur s'est produite lors de la lecture de {file_path} : {e}")
+
+    return all_moves
